@@ -85,3 +85,21 @@ def extract_number(string: str):
         return string
     
     return np.nan
+
+def get_sample_data(size):
+    data = np.random.rand(size, 2)
+    randoms = np.random.rand(size)/10 - 0.05
+
+    # for each row
+    for row in range(len(data)):
+        # the second column is a function: 2x^2 - 3x + err
+        data[row, 1] = 2*(data[row, 0]**2) - 3*data[row, 0] + randoms[row]
+
+    train_cutoff = int(np.ceil(size/5))
+    test_cutoff = int(np.ceil(2*size/5))
+    
+    train = data[0:train_cutoff]
+    test = data[train_cutoff:test_cutoff]
+    holdout = data[test_cutoff:]
+
+    return train, test, holdout

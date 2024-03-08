@@ -21,6 +21,10 @@ class NLSModel:
 
     # fit the model
     def fit(self, data, answers):
+        # data needs to be a matrix, not a vector
+        if len(data.shape) == 1:
+            data = np.expand_dims(data, 1)
+            
         # expand the data into a polynomial of a given degree (each row is now much longer)
         features = self.__psi(data)
 
@@ -71,6 +75,10 @@ class NLSModel:
         return features @ weights
     
     def predict(self, weights, features):
+        # features needs to be a matrix, not a vector
+        if len(features.shape) == 1:
+            features = np.expand_dims(features, 1)
+            
         # start with psi
         expanded = self.__psi(features)
         return expanded @ weights
