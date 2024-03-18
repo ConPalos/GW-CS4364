@@ -26,13 +26,14 @@ def mse_reg_gradient(answers, features, weights, regularizer):
 
 def mse_reg_manhattan(output, answers, regularizer, weights):
     mse_term = mse(output, answers)
-    reg_term = regularizer*np.sum(np.squeeze(weights))
+    reg_term = regularizer*np.sum(np.abs(np.squeeze(weights)))
     return np.squeeze(mse_term + reg_term)
 
 def mse_reg_manhattan_gradient(answers, features, weights, regularizer):
     mse_grad = mse_gradient(features, answers, weights)
-    reg_grad = regularizer
-    return mse_grad + reg_grad
+    reg_grad = regularizer*(np.where(weights > 0, 1, -1))
+    combined_grad = mse_grad + reg_grad
+    return combined_grad/max(1, norm(combined_grad))
 
 def smape(prediction, answers):
     # absolute difference
@@ -44,4 +45,5 @@ def smape(prediction, answers):
     n = len(answers)
 
     error = (2*diff)/(n*sums)
+    error = np.sum(error)
     return error

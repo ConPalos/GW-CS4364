@@ -1,5 +1,5 @@
 import numpy as np
-from costs import mse_reg_manhattan, mse_reg_manhattan_gradient, norm
+from costs import mse_reg_manhattan, mse_reg_manhattan_gradient, smape
 import matplotlib.pyplot as plt
 
 class NLSModel:
@@ -17,6 +17,9 @@ class NLSModel:
     
     def get_weights(self):
         w = np.squeeze(np.array(self.weight_hist))
+        if len(w.shape) == 1:
+            w = np.expand_dims(w, 0)
+
         return w
 
     # fit the model
@@ -81,7 +84,7 @@ class NLSModel:
             
         # start with psi
         expanded = self.__psi(features)
-        return expanded @ weights
+        return np.squeeze(expanded @ weights)
     
     def __psi(self, data):
         # unusually, this will have no convolution
@@ -96,6 +99,18 @@ class NLSModel:
             to_add = np.multiply(to_add, data) # squared, cubed, etc
             output = np.concatenate([output, to_add], axis=1)
 
+        # now just add in a row of 1's
+        output = np.concatenate([output, np.ones((output.shape[0], 1))], axis=1)
         # at this point, the feature space is immense
         # there is a term for each variable up to the given exponent
         return output
+    
+    def test(self, data, answers):
+        # make a prediction
+        prediction = self.predict(self.weights, data)
+
+        # evaluate how good that prediction is
+        error = smape(prediction, answers)
+
+        # that is error, return accuracy
+        return 1 - error
